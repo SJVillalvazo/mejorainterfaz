@@ -1,0 +1,90 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #334155;
+}
+
+/* Estilo de pestañas flotantes laterales */
+.tab-left {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+.tab-right {
+    writing-mode: vertical-rl;
+}
+
+/* Transiciones suaves */
+.smooth-transition {
+    transition: all 0.2s ease-in-out;
+}
+
+.registration-dialog {
+    width: min(28rem, calc(100% - 2rem));
+    max-width: none;
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    color: #334155;
+    box-shadow: 0 24px 48px rgb(15 23 42 / 0.25);
+}
+
+.registration-dialog::backdrop {
+    background: rgb(15 23 42 / 0.55);
+}
+
+.registration-dialog-content {
+    padding: 1.5rem;
+}
+
+.registration-dialog-error-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: 0.75rem;
+    color: #dc2626;
+}
+
+.registration-dialog-error-icon[hidden] {
+    display: none;
+}
+
+.registration-dialog-title {
+    margin: 0;
+    color: #552882;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.registration-dialog-description {
+    margin: 0.75rem 0;
+    font-size: 0.875rem;
+}
+
+.registration-dialog-errors {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0.75rem 0 1.25rem;
+    padding-left: 1.25rem;
+    color: #b91c1c;
+    font-size: 0.875rem;
+}
+
+.registration-dialog-errors[hidden] {
+    display: none;
+}
+
+.registration-dialog-close {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: #552882;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.registration-dialog-close:hover {
+    background: #411e64;
+}
