@@ -107,9 +107,34 @@ if (
     registrationMessageErrors &&
     registrationMessageClose
 ) {
+    // Clases CSS de Tailwind para marcar campos válidos o erróneos
+    const ERROR_CLASSES = ['!border-red-500', '!bg-red-50', '!ring-2', '!ring-red-200'];
+
+    function markControlInvalid(control) {
+        control.classList.add(...ERROR_CLASSES);
+    }
+
+    function clearControlInvalid(control) {
+        control.classList.remove(...ERROR_CLASSES);
+    }
+
     function showRegistrationMessage(title, description, errors = []) {
-        registrationMessageTitle.textContent = title;
-        registrationMessageDescription.textContent = description;
+    registrationMessageTitle.textContent = title;
+    registrationMessageDescription.textContent = description;
+
+    // Seleccionamos el contenedor del icono para cambiar su estilo e icono interno
+    const isError = errors.length > 0;
+
+    if (isError) {
+        // Icono de error (Signo de admiración rojo)
+        registrationMessageErrorIcon.innerHTML = `
+            <svg class="w-12 h-12 text-red-500 mx-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>[cite: 3]
+        `;
+        registrationMessageErrorIcon.classList.remove('hidden');
+
+        // Renderizar la lista de errores
         registrationMessageErrors.replaceChildren(
             ...errors.map((error) => {
                 const item = document.createElement('li');
@@ -117,57 +142,89 @@ if (
                 return item;
             })
         );
-        registrationMessageErrors.hidden = errors.length === 0;
-        registrationMessageErrorIcon.hidden = errors.length === 0;
-        registrationDialog.showModal();
+        registrationMessageErrors.classList.remove('hidden');
+    } else {
+        // Icono de éxito (Check verde)
+        registrationMessageErrorIcon.innerHTML = `
+            <svg class="w-12 h-12 text-emerald-500 mx-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        `;
+        registrationMessageErrorIcon.classList.remove('hidden');
+
+        // Ocultar lista de errores
+        registrationMessageErrors.replaceChildren();
+        registrationMessageErrors.classList.add('hidden');
     }
 
+    registrationDialog.showModal();
+}
+    // Mensajes de error claros, directos y resumidos
     function getValidationReason(control) {
         if (control.validity.valueMissing) {
             return control.type === 'checkbox'
-                ? 'Debes aceptar los términos para continuar.'
-                : 'Este campo es obligatorio; complétalo o selecciona una opción.';
+                ? 'Campo requerido'
+                : 'Obligatorio';
         }
 
         if (control.validity.typeMismatch && control.type === 'email') {
-            return 'Ingresa una dirección de correo electrónico válida.';
+            return 'Correo no válido';
         }
 
         if (control.validity.tooShort) {
-            return `Ingresa al menos ${control.minLength} caracteres.`;
+            return `Mínimo ${control.minLength} caracteres`;
         }
 
         if (control.validity.tooLong) {
-            return `Ingresa no más de ${control.maxLength} caracteres.`;
+            return `Máximo ${control.maxLength} caracteres`;
         }
 
         if (control.validity.patternMismatch) {
-            return 'El formato ingresado no es válido.';
+            return 'Formato incorrecto';
         }
 
-        return 'Revisa el valor ingresado en este campo.';
+        return 'Revisar campo';
     }
+
+    // Listener para limpiar el borde rojo dinámicamente cuando el usuario corrija o escriba
+    registrationForm.querySelectorAll('input, select, textarea').forEach((control) => {
+        const handleValidation = () => {
+            if (control.checkValidity()) {
+                clearControlInvalid(control);
+            }
+        };
+        control.addEventListener('input', handleValidation);
+        control.addEventListener('change', handleValidation);
+    });
 
     registrationForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
+        // Limpiar errores visuales anteriores
+        registrationForm.querySelectorAll('input, select, textarea').forEach(clearControlInvalid);
+
         if (!registrationForm.checkValidity()) {
-            const errors = Array.from(registrationForm.querySelectorAll(':invalid')).map((control) => {
+            const invalidControls = Array.from(registrationForm.querySelectorAll(':invalid'));
+
+            const errors = invalidControls.map((control) => {
+                // Destacar en rojo el input erróneo
+                markControlInvalid(control);
+
                 const label = control.labels?.[0]?.textContent.replace(/\s+/g, ' ').replace(/\*/g, '').trim();
                 return `${label || control.name}: ${getValidationReason(control)}`;
             });
 
             showRegistrationMessage(
-                'Revisa tu información',
-                'No se pudo completar el registro. Corrige los siguientes campos:',
+                'Datos incompletos',
+                'Por favor corrige los siguientes campos señalados en rojo:',
                 errors
             );
             return;
         }
 
         showRegistrationMessage(
-            'Información validada',
-            '¡Gracias! Tus datos se validaron correctamente.'
+            '¡Registro exitoso!',
+            'Tus datos han sido validados correctamente.'
         );
     });
 
